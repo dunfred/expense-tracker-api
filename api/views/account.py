@@ -44,19 +44,18 @@ class RegistrationView(generics.CreateAPIView):
     )
     def post(self, request, *args, **kwargs):
         ser = self.serializer_class(data=request.data)
-        if ser.is_valid(raise_exception= True):
-            # create the user
-            ser.save()
-            print(ser.data)
+        
+        ser.is_valid(raise_exception= True)
+        # create the user
+        ser.save()
 
-            data = {
-                'id': ser.data['id'],
-                'email': ser.data['email'],
-                'message': 'User created successfully'
-            }
-            
-            return Response(data, status=status.HTTP_201_CREATED)
-        return Response({'detail': 'invalid_data'}, status=status.HTTP_400_BAD_REQUEST)
+        data = {
+            'id': ser.data['id'],
+            'email': ser.data['email'],
+            'message': 'User created successfully'
+        }
+        
+        return Response(data, status=status.HTTP_201_CREATED)
 
 class LoginView(TokenObtainPairView):
     """ This endpoint is used to log a user in. """
@@ -99,7 +98,7 @@ class LogoutAPIView(APIView):
             except:
                 raise ValidationError({'detail':'Invalid refresh token'})
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            raise ValidationError({'refresh_token':'This field is required'})
 
 # USER
 class UserProfileView(APIView):
@@ -125,21 +124,19 @@ class UserProfileView(APIView):
     def put(self, request, userID):
         try:
             user = User.objects.get(pk=userID)
-        except User.DoesNotExist:
+        except:
             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
         data = request.data
-        print(data)
         try:
             serializer = UserSerializer(user, data=data, partial=True)
-        
             if serializer.is_valid():
                 serializer.save()
                 return Response({'message': 'User details updated successfully!'}, status=status.HTTP_200_OK)
-        except:
+        except Exception:
             pass
 
-        return Response({'detail': 'Invalid user ID'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': 'Invalid user data'}, status=status.HTTP_400_BAD_REQUEST)
         
 
 # INCOME

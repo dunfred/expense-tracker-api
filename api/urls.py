@@ -8,6 +8,6 @@ urlpatterns = [
     path('auth/login/', account.LoginView.as_view(), name='login'),
     path('auth/logout/', account.LogoutAPIView.as_view(), name='logout'),
     path('auth/refresh/', account.UserTokenRefreshView.as_view(), name='refresh'),
-    path('auth/user/<str:userID>/profile/', account.UserProfileView.as_view(), name='user-get-update'),
+    path('auth/user/<str:userID>/profile/', account.UserProfileView.as_view(), name='user_profile'),
 ]
 
