@@ -2,7 +2,7 @@ cryptography==39.0.2
 coverage==7.2.1
 Django==4.1.7
 django-cors-headers==3.4.0
-django-phonenumber-field==5.0.0
+django-phonenumber-field==7.0.2
 djangorestframework==3.14.0
 djangorestframework-simplejwt==4.6.0
 drf-yasg==1.21.4

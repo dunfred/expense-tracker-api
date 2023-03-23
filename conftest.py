@@ -1,0 +1,30 @@
+import pytest
+from apps.account.models import User
+from mixer.backend.django import mixer
+from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+
+@pytest.fixture
+def user():
+    user_obj = mixer.blend(User,
+        email='nobody@nomail.com',
+        phone_number='+233277528582',
+    )
+    user_obj.set_password('test_user')
+    user_obj.save()
+    return user_obj
+
+@pytest.fixture
+def refresh_token(user):
+    refresh_token = RefreshToken.for_user(user)
+    return str(refresh_token)
+
+@pytest.fixture
+def access_token(user):
+    token = AccessToken.for_user(user)
+    return str(token)

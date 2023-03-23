@@ -1,12 +1,22 @@
 import uuid
 from django.db import models
+from apps.account.validators import validate_username
 from apps.account.manager import UserManager
+from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.password_validation import validate_password
 
+# class UppercaseUUIDField(models.UUIDField):
+#     def get_db_prep_value(self, value, connection, prepared=False):
+#         if not prepared:
+#             return str(uuid.UUID(str(value))).upper()
+#         return value
+    
 # Create your models here.
 class User(AbstractUser):
+    username_validator = validate_username
+
     id              = models.UUIDField(_("id"), primary_key=True, default=uuid.uuid4, editable=False)
     
     first_name      = models.CharField(_('First Name'), max_length=150)
@@ -15,11 +25,20 @@ class User(AbstractUser):
     
     phone_number    = PhoneNumberField(_("Phone number"), help_text=_("User's phone number "), unique=True)
     
-    username        = models.CharField(_('Username'), max_length=100, unique=True)
+    username        = models.CharField(
+                        _('Username'),
+                        max_length=150,
+                        unique=True,
+                        help_text='Required. 150 characters or fewer. Letters, digits and _ only.',
+                        validators=[username_validator],
+                        error_messages={
+                            'unique': "A user with that username already exists.",
+                        },
+                    )
     
     email           = models.EmailField(_('Email'), unique=True)
 
-    password        = models.CharField(_('Password'), validators=[validate_password])
+    password        = models.CharField(_('Password'), max_length=254, validators=[validate_password])
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [
