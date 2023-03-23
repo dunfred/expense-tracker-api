@@ -1,6 +1,6 @@
 
 # Personal Expense Tracker API
-This is a django based web api designed to be used to track a user's expenses
+This is a web api designed to be used to track a user's income and expenses.
 
 For this project the following were used;
 ```
