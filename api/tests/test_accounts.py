@@ -73,6 +73,24 @@ class TestRegistrationView:
         
         assert User.objects.count() == 0
 
+    def test_registration_view_username_not_in_lowercase(self, client):
+        # invalid data
+        data = {
+            'email': 'testuser@test.com',
+            'password': 'testpassword',
+            'first_name': 'test',
+            'last_name': 'user',
+            'phone_number': '+2348123456789',
+            'username': 'TESTuser'
+        }
+        response = client.post(self.registration_url, data=data, format='json')
+
+        # assert response status code and data
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data['validations']['username'] == 'Username must be in lowercase letters.'
+        assert User.objects.count() == 0
+
+
     def test_registration_view_missing_all_required_fields(self, client):
         # missing email
         data = {
