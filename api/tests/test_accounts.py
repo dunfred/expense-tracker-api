@@ -215,6 +215,10 @@ class TestUserProfileView:
         assert response.status_code == status.HTTP_200_OK
         assert response.data == UserSerializer(user).data
 
+        # To test __str__ and get_full_name methods of the User model
+        print(user)
+        print(user.get_full_name())
+
     def test_get_user_no_authentication(self, api_client, user, access_token):
         url = reverse('user_profile', args=[user.id])
 
