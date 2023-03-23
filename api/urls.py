@@ -4,7 +4,7 @@ from api.views import account
 
 urlpatterns = [
     # Auth
-    path('auth/signup/', account.RegistrationView.as_view(), name='register'),
+    path('auth/signup/', account.RegistrationView.as_view(), name='signup'),
     path('auth/login/', account.LoginView.as_view(), name='login'),
     path('auth/logout/', account.LogoutAPIView.as_view(), name='logout'),
     path('auth/refresh/', account.UserTokenRefreshView.as_view(), name='refresh'),

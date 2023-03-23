@@ -45,14 +45,9 @@ class RegistrationView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         ser = self.serializer_class(data=request.data)
         if ser.is_valid(raise_exception= True):
-            # check if the user already exists
-            if User.objects.filter(email__iexact=request.data["email"]).exists():
-                return Response(
-                    {'detail': 'Matching record found. Do you mean to login?'}, status=status.HTTP_400_BAD_REQUEST
-                )
-
             # create the user
             ser.save()
+            print(ser.data)
 
             data = {
                 'id': ser.data['id'],

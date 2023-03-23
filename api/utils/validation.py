@@ -41,7 +41,7 @@ def custom_exception_handler(exc, context):
                         else: # if key is not detail and value is list and inner value is not dict
                             try:
                                 error_list = eval(list(value)[0]) # using eval to prevent string being converted to list
-                                customized_response['validations'][key] = ",".join(error_list)
+                                customized_response['validations'][key] = " ".join(error_list)
                             except Exception: # if key is not detail and value is list and inner value is not dict and not list
                                 error = ''.join(value) #join on empty string to remove the list brackets
                                 customized_response['validations'][key]= error

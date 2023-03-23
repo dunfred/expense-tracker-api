@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import password_validation
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework_simplejwt.serializers import PasswordField, TokenObtainPairSerializer
+from django.contrib.auth.password_validation import validate_password as user_validate_password
 
 class UserSerializer(serializers.ModelSerializer):
     """User serializer"""
@@ -39,17 +40,23 @@ class RegisterUserSerializer(serializers.ModelSerializer):
             'password',
         ]
 
-    def validate(self, attrs):
-        """Validation for password and phone number."""
+    # def validate(self, attrs):
+    #     """Validation for password and phone number."""
+    #     try:
+    #         password_validation.validate_password(attrs["password"])
+    #     except ValidationError as e:
+    #         raise serializers.ValidationError({'password': str(e)})
+
+    #     if User.objects.filter(phone_number=attrs["phone_number"]).exists():
+    #         raise serializers.ValidationError({'phone_number': 'This phone number is already taken'})
+
+    #     return attrs
+    def validate_password(self, value):
         try:
-            password_validation.validate_password(attrs["password"])
-        except ValidationError as e:
-            raise serializers.ValidationError({'password': str(e)})
-
-        if User.objects.filter(phone_number=attrs["phone_number"]).exists():
-            raise serializers.ValidationError({'phone_number': 'This phone number is already taken'})
-
-        return attrs
+            user_validate_password(value)
+        except ValidationError as exc:
+            raise serializers.ValidationError(str(exc))
+        return value
 
     def create(self, validated_data):
         password = validated_data.get('password')
@@ -77,10 +84,10 @@ class LoginSerializer(TokenObtainPairSerializer):
         """Overriding to change the error messages."""
         super(LoginSerializer, self).__init__(*args, **kwargs)
         self.fields[self.username_field] = serializers.CharField(
-            error_messages={"blank": "Invalid username/password"}
+            error_messages={"blank": "Invalid username"}
         )
         self.fields['password'] = PasswordField(
-            error_messages={"blank": "Invalid username/password"}
+            error_messages={"blank": "Invalid password"}
         )
 
     def validate(self, attrs):
