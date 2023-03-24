@@ -5,7 +5,8 @@ django-cors-headers==3.4.0
 django-phonenumber-field==7.0.2
 djangorestframework==3.14.0
 djangorestframework-simplejwt==4.6.0
-drf-yasg==1.21.4
+drf-spectacular==0.26.1
+drf-spectacular[sidecar]
 mixer==7.2.2
 phonenumbers==8.12.14
 pytest==7.2.2
