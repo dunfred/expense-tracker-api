@@ -1,15 +1,14 @@
 from apps.account.models import User
 from rest_framework import serializers
-# from django.db.models import Sum, F, Value
 from django.contrib.auth import user_logged_in
 from django.core.exceptions import ValidationError
-from django.contrib.auth import password_validation
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework_simplejwt.serializers import PasswordField, TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password as user_validate_password
+from rest_framework.response import Response
 
 class UserSerializer(serializers.ModelSerializer):
-    """User serializer"""
+    """User serializer."""
     class Meta:
         model = User
         exclude = [
@@ -40,21 +39,11 @@ class RegisterUserSerializer(serializers.ModelSerializer):
             'password',
         ]
 
-    # def validate(self, attrs):
-    #     """Validation for password and phone number."""
-    #     try:
-    #         password_validation.validate_password(attrs["password"])
-    #     except ValidationError as e:
-    #         raise serializers.ValidationError({'password': str(e)})
-
-    #     if User.objects.filter(phone_number=attrs["phone_number"]).exists():
-    #         raise serializers.ValidationError({'phone_number': 'This phone number is already taken'})
-
-    #     return attrs
     def validate_password(self, value):
         try:
             user_validate_password(value)
         except ValidationError as exc:
+            # Throw a serializer validation error with the password errors
             raise serializers.ValidationError(str(exc))
         return value
 
@@ -75,56 +64,32 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         ]
 
 class LoginSerializer(TokenObtainPairSerializer):
-    """Password login serializer for user"""
-    user_serializer = UserSerializer
-
+    """Password login serializer for user."""
+    email = serializers.EmailField(required=True)
+    password = PasswordField(required=True)
+    
     default_error_messages = {'no_active_account': ('Invalid username/password')}
 
-    def __init__(self, *args, **kwargs):
-        """Overriding to change the error messages."""
-        super(LoginSerializer, self).__init__(*args, **kwargs)
-        self.fields[self.username_field] = serializers.CharField(
-            error_messages={"blank": "Invalid username"}
-        )
-        self.fields['password'] = PasswordField(
-            error_messages={"blank": "Invalid password"}
-        )
-
     def validate(self, attrs):
-        """Overriding to return custom response"""
-        super().validate(attrs) # keep this to ensure the self.user attr is set
-
-        if not self.user.is_active:
-            raise serializers.ValidationError({'detail': 'Your account is not active.'})
-
-        refresh = self.get_token(self.user)
-
-        resp = {
-            'id': self.user.id,
-            'email': self.user.email,
-            'tokens': {
-                'access': str(refresh.access_token),
-                'refresh': str(refresh)
-            }
-        }
-        # Add extra responses here
+        """Overriding to return custom response."""
+        data = super().validate(attrs) # keep this to ensure the self.user attr is set
 
         user_logged_in.send(sender=self.user.__class__, request=self.context['request'], user=self.user)
-        return resp
+        return data
     
 class TokenSerializer(serializers.Serializer):
-    """Token Serializer"""
+    """Token Serializer."""
     access_token  = serializers.CharField(read_only=True)
     refresh_token = serializers.CharField(read_only=True)
 
 class LogoutSerializer(serializers.Serializer):
-    """Logout Serializer"""
+    """Logout Serializer."""
     refresh_token = serializers.CharField(required=True)
 
-# Schemas
 
+# API Response Schemas
 class UserLoginSchemaSerializer(serializers.Serializer):
-    """User login schema"""
+    """User login schema."""
     id      = serializers.UUIDField(read_only=True)
     email   = serializers.EmailField(read_only=True)
     tokens  = serializers.DictField(
@@ -133,19 +98,19 @@ class UserLoginSchemaSerializer(serializers.Serializer):
     )
 
 class UserLogoutSchemaSerializer(serializers.Serializer):
-    """User logout schema"""
+    """User logout schema."""
     message = serializers.CharField(read_only=True)
 
 class UserUpdateSchemaSerializer(serializers.Serializer):
-    """User update schema"""
+    """User update schema."""
     message = serializers.CharField(read_only=True)
 
 class UserRegisterSchemaSerializer(serializers.Serializer):
-    """User Register schema"""
+    """User Register schema."""
     id      = serializers.UUIDField(read_only=True)
     email   = serializers.EmailField(read_only=True)
     message = serializers.CharField(read_only=True)
 
 class RefreshTokenSchemaSerializer(serializers.Serializer):
-    """Refresh Token schema"""
+    """Refresh Token schema."""
     access_token  = serializers.CharField(read_only=True)

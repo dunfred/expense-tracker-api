@@ -147,7 +147,8 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.MultiPartRenderer',
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.TemplateHTMLRenderer'
-    ]
+    ],
+    'COERCE_DECIMAL_TO_STRING': False, # To avoid decimal to string conversion
 }
 
 SIMPLE_JWT = {
@@ -181,8 +182,9 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Personal Expense Tracker API',
     'DESCRIPTION': "This is a sample Personal Expense Tracker based on the OpenAPI 3.0 specification which is used to track a user's expenses.",
     'VERSION': '1.0.11',
-    'SERVE_INCLUDE_SCHEMA': False,
     'SERVE_PUBLIC': True,
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
     'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
     'CONTACT': {
         'name': 'Fred Dunyo',
