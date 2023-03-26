@@ -90,7 +90,7 @@ class ExpenditureRetrieveUpdateDeleteView(generics.GenericAPIView):
             return Response({'message': 'Expenditure not found'}, status=status.HTTP_404_NOT_FOUND)
         except ValidationError:
             expenditure = None
-            return Response({'message': 'Invalid Expenditure ID'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Invalid expenditure ID'}, status=status.HTTP_400_BAD_REQUEST)
 
         data = request.data
         try:
@@ -106,7 +106,7 @@ class ExpenditureRetrieveUpdateDeleteView(generics.GenericAPIView):
         except Exception:
             pass
 
-        return Response({'detail': 'Invalid income data'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Invalid expenditure data'}, status=status.HTTP_400_BAD_REQUEST)
 
 
     # delete
@@ -128,9 +128,13 @@ class ExpenditureRetrieveUpdateDeleteView(generics.GenericAPIView):
             return Response({'message': 'Expenditure not found'}, status=status.HTTP_404_NOT_FOUND)
         except ValidationError:
             expenditure = None
-            return Response({'message': 'Invalid expenditure ID / some other type of error!'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Invalid expenditure ID'}, status=status.HTTP_400_BAD_REQUEST)
 
-        expenditure.delete()
+        try:
+            expenditure.delete()
+        except Exception:
+            return Response({'message': 'Error deleting expenditure!'}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response({'message': 'Expenditure deleted successfully!'}, status=status.HTTP_200_OK)
         
 

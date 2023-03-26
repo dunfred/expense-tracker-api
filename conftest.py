@@ -1,6 +1,6 @@
 import uuid
 import pytest
-from apps.account.models import Income, User
+from apps.account.models import Expenditure, Income, User
 from mixer.backend.django import mixer
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
@@ -29,6 +29,16 @@ def user_income(user):
         user=user
     )
     return user_income_obj
+
+@pytest.fixture
+def user_expenditure(user):
+    user_expenditure_obj = mixer.blend(Expenditure,
+        id=uuid.uuid4(),
+        category="transport",
+        nameOfItem="transport",
+        user=user
+    )
+    return user_expenditure_obj
 
 @pytest.fixture
 def refresh_token(user):

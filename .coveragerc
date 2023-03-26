@@ -2,8 +2,11 @@
 source = .
 omit = 
     *tests/*
+    *test_*
+    *tests*
     *venv/*
     *manage.py
+    *manager.py
     */settings.py
     *apps.py
     *asgi.py

@@ -30,6 +30,9 @@ class TestUserIncome:
         api_client.force_authenticate(user=user) # Authenticates the request
         get_update_delete_url = reverse('retrieve_get_update_delete_income', args=[user_income.id])
 
+        # To test __str__ method of the Income model
+        print(user_income)
+
         # Get income
         response = api_client.get(get_update_delete_url)
         assert response.status_code == status.HTTP_200_OK
