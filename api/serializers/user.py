@@ -6,6 +6,7 @@ from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework_simplejwt.serializers import PasswordField, TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password as user_validate_password
 from django.db.models import Sum
+from phonenumber_field.validators import validate_international_phonenumber
 
 class UserSerializer(serializers.ModelSerializer):
     total_income = serializers.SerializerMethodField()
@@ -60,12 +61,12 @@ class RegisterUserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(str(exc))
         return value
 
-    def validate(self, attrs):
-        data = super().validate(attrs)
-        if User.objects.filter(phone_number=data['phone_number']).exists():
-            raise serializers.ValidationError({'phone_number':"User with this Phone number already exists"})
+    def validate_phone_number(self, value):
+        validate_international_phonenumber(value)
+        if User.objects.filter(phone_number=value).exists():
+            raise serializers.ValidationError("User with this Phone number already exists")
 
-        return data
+        return value
 
     def create(self, validated_data):
         password = validated_data.get('password')
@@ -87,6 +88,12 @@ class LoginSerializer(TokenObtainPairSerializer):
     """Password login serializer for user."""
     email = serializers.EmailField(required=True)
     password = PasswordField(required=True)
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        # emitting user_logged_in signal for token-based authentication
+        user_logged_in.send(sender=self.user.__class__, request=self.context['request'], user=self.user)
+        return data
 
 class TokenSerializer(serializers.Serializer):
     """Token Serializer."""

@@ -34,7 +34,7 @@ class TestRegistrationView:
         assert User.objects.count() == 1
 
     def test_registration_view_user_already_exists(self, client):
-        mixer.blend(User, email='testuser@test.com') # create a user with testuser@test.com email
+        mixer.blend(User, email='testuser@test.com', phone_number='+2348123456789') # create a user with testuser@test.com email
 
         # data with existing email
         data = {
