@@ -60,7 +60,7 @@ class Income(models.Model):
     id              = models.UUIDField(_("id"), primary_key=True, default=uuid.uuid4, editable=False)
     nameOfRevenue   = models.CharField(_("Name of Revenue"), max_length=100)
     amount          = models.DecimalField(_("Amount"), max_digits=10, decimal_places=2)
-    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, related_name="incomes")
     updated_at      = models.DateTimeField(auto_now=True)
     created_at      = models.DateTimeField(auto_now_add=True)
 
@@ -76,7 +76,7 @@ class Expenditure(models.Model):
     category        = models.CharField(_("Category"), max_length=100)
     nameOfItem      = models.CharField(_("Name of Item"), max_length=100)
     estimatedAmount = models.DecimalField(_("Estimated Amount"), max_digits=10, decimal_places=2)
-    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, related_name="expenditures")
     updated_at      = models.DateTimeField(auto_now=True)
     created_at      = models.DateTimeField(auto_now_add=True)
 

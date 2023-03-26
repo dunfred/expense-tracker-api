@@ -21,41 +21,7 @@ from api.serializers.user import (
 )
 from rest_framework.serializers import ValidationError
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, OpenApiResponse
-from drf_spectacular.types import OpenApiTypes
 
-'''
-class UserViewSet(viewsets.GenericViewSet):
-    serializer_class = RegisterUserSerializer
-    # Register a new user
-    @extend_schema(
-        request=RegisterUserSerializer,
-        responses={status.HTTP_201_CREATED: UserRegisterSchemaSerializer},
-        summary='Register User',
-        description='This endpoint is used to create a user using a valid email and password',
-        methods=['post'],
-        operation_id='createUser'
-    )
-    @action(
-        methods=['post'],
-        url_path='auth/signup',
-        url_name='register_user',
-        detail=False,
-    )
-    def register_user(self, request):
-        ser = self.serializer_class(data=request.data)
-        
-        ser.is_valid(raise_exception= True)
-        # create the user
-        ser.save()
-
-        data = {
-            'id': ser.data['id'],
-            'email': ser.data['email'],
-            'message': 'User created successfully'
-        }
-        
-        return Response(data, status=status.HTTP_201_CREATED)
-'''
 
 # AUTH
 class RegistrationView(generics.CreateAPIView):
@@ -144,24 +110,38 @@ class LoginView(TokenObtainPairView):
         ],
     )
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.user
-            token = serializer.validated_data['access']
-            refresh_token = serializer.validated_data['refresh']
-            return Response(
-                {
-                    'id': user.id,
-                    'email': user.email,
-                    'tokens': {
-                        'access': str(token),
-                        'refresh': str(refresh_token)
-                    }
-                },
-                status=status.HTTP_200_OK
-            )
-        print(serializer.errors)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        # verify login credentials
+        user_obj = User.objects.filter(email=request.data['email']).first()
+
+        # user does not exist
+        if user_obj is None:
+            return Response({'message':'Invalid username/password'}, status=status.HTTP_400_BAD_REQUEST) #we don't want to tell the user that the account doesn't exist
+
+        # check password
+        if not user_obj.check_password(request.data['password']):
+            return Response({'message':'Invalid username/password'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # check if user is active
+        if not user_obj.is_active:
+            return Response({'message':'No active account found with the given credentials'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                token = serializer.validated_data['access']
+                refresh_token = serializer.validated_data['refresh']
+                return Response(
+                    {
+                        'id': user_obj.id,
+                        'email': user_obj.email,
+                        'tokens': {
+                            'access': str(token),
+                            'refresh': str(refresh_token)
+                        }
+                    },
+                    status=status.HTTP_200_OK
+                )
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class UserTokenRefreshView(TokenRefreshView):
     permission_classes = (permissions.AllowAny, )
@@ -264,5 +244,5 @@ class UserProfileView(APIView):
         except Exception:
             pass
 
-        return Response({'detail': 'Invalid user data'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Invalid user data'}, status=status.HTTP_400_BAD_REQUEST)
 

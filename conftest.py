@@ -1,8 +1,11 @@
+import uuid
 import pytest
-from apps.account.models import User
+from apps.account.models import Income, User
 from mixer.backend.django import mixer
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+
+# Creating global reusable fixtures
 
 @pytest.fixture
 def api_client():
@@ -18,6 +21,14 @@ def user():
     user_obj.set_password('test_user')
     user_obj.save()
     return user_obj
+
+@pytest.fixture
+def user_income(user):
+    user_income_obj = mixer.blend(Income,
+        id=uuid.uuid4(),
+        user=user
+    )
+    return user_income_obj
 
 @pytest.fixture
 def refresh_token(user):

@@ -5,9 +5,12 @@ from django.core.exceptions import ValidationError
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework_simplejwt.serializers import PasswordField, TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password as user_validate_password
-from rest_framework.response import Response
+from django.db.models import Sum
 
 class UserSerializer(serializers.ModelSerializer):
+    total_income = serializers.SerializerMethodField()
+    total_expense = serializers.SerializerMethodField()
+
     """User serializer."""
     class Meta:
         model = User
@@ -21,6 +24,16 @@ class UserSerializer(serializers.ModelSerializer):
             'last_login',
             'date_joined',
         ]
+    def get_total_income(self, user):
+        user_incomes = user.incomes.all() # get all user incomes
+        total = user_incomes.aggregate(total_income=Sum('amount')).get('total_income', 0)
+        return total if total else 0
+
+    def get_total_expense(self, user):
+        user_incomes = user.expenditures.all() # get all user expenditures
+        total = user_incomes.aggregate(total_income=Sum('estimatedAmount')).get('total_income', 0)
+        return total if total else 0
+
 
 class RegisterUserSerializer(serializers.ModelSerializer):
     """Seralizer for user registration."""
@@ -67,15 +80,7 @@ class LoginSerializer(TokenObtainPairSerializer):
     """Password login serializer for user."""
     email = serializers.EmailField(required=True)
     password = PasswordField(required=True)
-    
-    default_error_messages = {'no_active_account': ('Invalid username/password')}
 
-    def validate(self, attrs):
-        """Overriding to return custom response."""
-        data = super().validate(attrs) # keep this to ensure the self.user attr is set
-
-        user_logged_in.send(sender=self.user.__class__, request=self.context['request'], user=self.user)
-        return data
     
 class TokenSerializer(serializers.Serializer):
     """Token Serializer."""

@@ -111,7 +111,7 @@ class IncomeRetrieveUpdateDeleteView(generics.GenericAPIView):
         except Exception:
             pass
 
-        return Response({'detail': 'Invalid income data'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Invalid income data'}, status=status.HTTP_400_BAD_REQUEST)
 
     # delete
     @extend_schema(
@@ -132,9 +132,13 @@ class IncomeRetrieveUpdateDeleteView(generics.GenericAPIView):
             return Response({'message': 'Income not found'}, status=status.HTTP_404_NOT_FOUND)
         except ValidationError:
             income = None
-            return Response({'message': 'Invalid income ID / some other type of error!'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Invalid income ID'}, status=status.HTTP_400_BAD_REQUEST)
 
-        income.delete()
+        try:
+            income.delete()
+        except Exception:
+            return Response({'message': 'Error deleting income!'}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response({'message': 'Income deleted successfully!'}, status=status.HTTP_200_OK)
         
 
