@@ -60,6 +60,13 @@ class RegisterUserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(str(exc))
         return value
 
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        if User.objects.filter(phone_number=data['phone_number']).exists():
+            raise serializers.ValidationError({'phone_number':"User with this Phone number already exists"})
+
+        return data
+
     def create(self, validated_data):
         password = validated_data.get('password')
         user = User(**validated_data)
@@ -81,7 +88,6 @@ class LoginSerializer(TokenObtainPairSerializer):
     email = serializers.EmailField(required=True)
     password = PasswordField(required=True)
 
-    
 class TokenSerializer(serializers.Serializer):
     """Token Serializer."""
     access_token  = serializers.CharField(read_only=True)
