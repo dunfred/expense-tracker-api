@@ -1,6 +1,6 @@
 
 # Personal Expense Tracker API
-[![codecov](https://codecov.io/gh/dunfred/expense-tracker-api/branch/main/graph/badge.svg)](https://codecov.io/gh/dunfred/expense-tracker-api)
+[![codecov](https://codecov.io/gh/dunfred/expense-tracker-api/branch/develop/graph/badge.svg)](https://codecov.io/gh/dunfred/expense-tracker-api)
 
 This is a web api designed to be used to track a user's income and expenses.
 
