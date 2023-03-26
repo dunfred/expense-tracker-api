@@ -50,7 +50,10 @@ jobs:
       env:
         SECRET_KEY: _07(&087^%$^^&RR9y8h6#$6^NNjt4io@nh
         DEBUG: 1
-        ALLOWED_HOSTS: 'http://localhost:8000'
+        ALLOWED_HOSTS: http://localhost:8000
   
       run: |
         pytest -p no:warnings
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1

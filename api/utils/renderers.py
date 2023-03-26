@@ -1,6 +1,21 @@
 from rest_framework.renderers import JSONRenderer
 
 
+class LoginRenderer(JSONRenderer):
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        status_code = renderer_context['response'].status_code
+
+        # return an empty response if there is no data to render
+        response = b'' if data is None else {"data": data}
+
+        if not str(status_code).startswith('2'):
+            response = {
+                "errors": data,
+            }
+        return super(LoginRenderer, self).render(response, accepted_media_type, renderer_context)
+
+
+"""
 class CustomResponseRenderer(JSONRenderer):
     '''
     A custom Renderer to make all responses return a success key by default
@@ -34,16 +49,4 @@ class CustomResponseRenderer(JSONRenderer):
                 "errors": data,
             }
         return super(CustomResponseRenderer, self).render(response, accepted_media_type, renderer_context)
-
-class LoginRenderer(JSONRenderer):
-    def render(self, data, accepted_media_type=None, renderer_context=None):
-        status_code = renderer_context['response'].status_code
-        if data is None:
-            return b''
-        else:
-            response = {"data": data}
-        if not str(status_code).startswith('2'):
-            response = {
-                "errors": data,
-            }
-        return super(LoginRenderer, self).render(response, accepted_media_type, renderer_context)
+"""

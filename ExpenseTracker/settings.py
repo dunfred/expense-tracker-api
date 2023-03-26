@@ -56,7 +56,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'phonenumber_field',
     'rest_framework_simplejwt.token_blacklist',
-    'drf_yasg',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',  # required for Django collectstatic discovery
 ]
 
 MIDDLEWARE = [
@@ -122,6 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     # 'DEFAULT_RENDERER_CLASSES': ('api.utils.renderers.CustomResponseRenderer',),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
     'EXCEPTION_HANDLER': 'api.utils.validation.custom_exception_handler',
 
@@ -145,7 +147,8 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.MultiPartRenderer',
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.TemplateHTMLRenderer'
-    ]
+    ],
+    'COERCE_DECIMAL_TO_STRING': False, # To avoid decimal to string conversion
 }
 
 SIMPLE_JWT = {
@@ -156,7 +159,8 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
     'VERIFYING_KEY': None,
-    'ISSUER': None,'AUTH_HEADER_TYPES': ('Bearer', 'JWT'),
+    'ISSUER': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
@@ -171,8 +175,49 @@ SWAGGER_SETTINGS = {
     }
 }
 
-REDOC_SETTINGS = {
-   'LAZY_RENDERING': True,
+SPECTACULAR_SETTINGS = {
+    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+    'TITLE': 'Personal Expense Tracker API',
+    'DESCRIPTION': "This is a sample Personal Expense Tracker based on the OpenAPI 3.0 specification which is used to track a user's expenses.",
+    'VERSION': '1.0.11',
+    'SERVE_PUBLIC': True,
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
+    'CONTACT': {
+        'name': 'Fred Dunyo',
+        'email': 'donklenam2@gmail.com'
+    },
+    'LICENSE': {
+        'name': 'Apache 2.0',
+        'url': 'http://www.apache.org/licenses/LICENSE-2.0.html',
+    },
+    'SERVERS': [
+        {
+            'url': 'http://127.0.0.1:8000',
+            'description': 'Local server',
+        },
+    ],
+    'TAGS': [
+        {
+            'name': 'user',
+            'description':"Operations about a user",
+        },
+        {
+            'name': 'income',
+            'description': "Operations about a user's income",
+        },
+        {
+            'name': 'expense',
+            'description': "Operations about a user's expense",
+        },
+    ],
+    'EXTERNAL_DOCS': {
+        'description': 'Find out more about Swagger',
+        'url': 'http://swagger.io',
+    },
 }
 
 # Internationalization
@@ -209,5 +254,7 @@ BASE_DIR / 'static',
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 PHONENUMBER_DB_FORMAT = "INTERNATIONAL"
+
 PHONENUMBER_DEFAULT_REGION = "GH"
+
 PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
