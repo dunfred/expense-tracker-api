@@ -30,6 +30,14 @@ $ source expense-tracker-env/bin/activate
 $ expense-tracker-env\Scripts\activate
 ```
 
+Make sure you create a **.env** file in the root directory of the project with the following variables (same directory **manage.py** file is located)
+
+```env
+SECRET_KEY=your_secret
+DEBUG=1
+CORS_ORIGIN_WHITELIST=http://localhost:8000
+```
+
 Then install the dependencies:
 
 ```sh
