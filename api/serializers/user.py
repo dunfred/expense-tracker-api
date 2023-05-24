@@ -1,6 +1,7 @@
 from apps.account.models import User
 from rest_framework import serializers
 from django.contrib.auth import user_logged_in
+from drf_spectacular.utils import extend_schema_field
 from django.core.exceptions import ValidationError
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework_simplejwt.serializers import PasswordField, TokenObtainPairSerializer
@@ -25,11 +26,14 @@ class UserSerializer(serializers.ModelSerializer):
             'last_login',
             'date_joined',
         ]
+
+    @extend_schema_field(serializers.DecimalField(max_digits=9, decimal_places=2))
     def get_total_income(self, user):
         user_incomes = user.incomes.all() # get all user incomes
         total = user_incomes.aggregate(total_income=Sum('amount')).get('total_income', 0)
         return total if total else 0
 
+    @extend_schema_field(serializers.DecimalField(max_digits=9, decimal_places=2))
     def get_total_expense(self, user):
         user_incomes = user.expenditures.all() # get all user expenditures
         total = user_incomes.aggregate(total_income=Sum('estimatedAmount')).get('total_income', 0)
